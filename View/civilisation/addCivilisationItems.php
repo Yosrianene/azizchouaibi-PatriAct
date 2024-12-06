@@ -178,7 +178,7 @@ $civilisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <form name="civilisationForm" action="addCivilisationItems.php" method="POST" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="civilisation_id">ID de la civilisation :</label>
+                <label for="civilisation_id"></label>
                 <select name="civilisation_id">
                     <?php foreach ($civilisations as $civilisation): ?>
                         <option value="<?= htmlspecialchars($civilisation['id']); ?>">

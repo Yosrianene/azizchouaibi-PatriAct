@@ -1,100 +1,128 @@
 <?php
-// Connexion à la base de données
-$dsn = "mysql:host=localhost;dbname=patrimoine;charset=utf8";
-$username = "root";
-$password = "";
+require_once '../../patriAct-main/Controller/CivilisationController.php';
+require_once '../../patriAct-main/Controller/CivilisationItemsController.php';
+require_once '../../patriAct-main/view/config.php';
 
-try {
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Erreur de connexion : " . $e->getMessage());
-}
 
-// Récupérer la recherche et afficher les civilisations correspondantes
-$search = $_GET['search'] ?? '';
-$civilisations = [];
 
-if (!empty($search)) {
-    $stmt = $pdo->prepare("SELECT * FROM civilisation WHERE name LIKE :search");
-    $stmt->execute(['search' => "%$search%"]);
-    $civilisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    // Si la recherche est vide, afficher toutes les civilisations
-    $stmt = $pdo->query("SELECT * FROM civilisation");
-    $civilisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+// Fetch all posts
+$civController = new CivilisationController();
+$civs = $civController->listAll();
 
 ?>
 
+
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Civilisations</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <!-- Google Fonts & Vendor CSS Files -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600|Nunito:300,400,600|Poppins:300,400,500" rel="stylesheet">
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
 </head>
+
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Gestion des Civilisations</h1>
+    <!-- Header -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="assets/img/logo.png" alt="">
+                <span class="d-none d-lg-block">NiceAdmin</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+    </header>
 
-        <!-- Formulaire de recherche -->
-        <form method="get" class="mb-4">
-            <div class="input-group">
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="form-control" 
-                    placeholder="Rechercher une civilisation" 
-                    value="<?= htmlspecialchars($search); ?>"
-                >
-                <button class="btn btn-primary" type="submit">Rechercher</button>
-            </div>
-        </form>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-grid"></i><span>Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
 
-       <!-- Résultats de la recherche -->
-<div class="mt-4">
-    <?php if (!empty($civilisations)): ?>
-        <div class="row">
-            <?php foreach ($civilisations as $civilisation): ?>
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
+    <!-- Main -->
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Gestion des Civilisations</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Accueil</a></li>
+                    <li class="breadcrumb-item active">Civilisations</li>
+                </ol>
+            </nav>
+        </div>
+
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($civilisation['name']); ?></h5>
-                            <p class="card-text"><?= htmlspecialchars($civilisation['description']); ?></p>
-                            <div class="d-flex justify-content-between">
-                                <!-- Bouton Modifier -->
-                                <a href="../View/civilisation/editCivilisation.php?id=<?= $civilisation['id']; ?>&search=<?= urlencode($search); ?>" class="btn btn-warning btn-sm">Modifier</a>
-                                
-                                <!-- Bouton Supprimer -->
-                                <a href="../View/civilisation/deleteCivilisation.php?id=<?= $civilisation['id']; ?>&search=<?= urlencode($search); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette civilisation ?')">Supprimer</a>
-                                
-                                <!-- Bouton Voir éléments -->
-                                <a href="../View/civilisation/searchCivilisationItems.php?civilisation_id=<?= $civilisation['id']; ?>" class="btn btn-info btn-sm">Voir éléments</a>
+                            <h5 class="card-title">Liste des Civilisations</h5>
 
+                            <!-- Message de succès -->
+                            <?php if (isset($_GET['success'])): ?>
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <?php if ($_GET['success'] == 1): ?>
+                                        La civilisation a été ajoutée avec succès.
+                                    <?php elseif ($_GET['success'] == 2): ?>
+                                        La civilisation a été mise à jour avec succès.
+                                    <?php elseif ($_GET['success'] == 3): ?>
+                                        La civilisation a été supprimée avec succès.
+                                    <?php endif; ?>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            <?php endif; ?>
 
+                            <!-- Bouton d'ajout -->
+                            <a href="addCivilisation.php" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Ajouter une nouvelle civilisation</a>
 
-                            </div>
+                            <!-- Tableau -->
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Nom</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+ <?php foreach ($civilisations as $civilisation): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($civilisation['name']); ?></td>
+                                            <td><?= htmlspecialchars($civilisation['description']); ?></td>
+                                            <td>
+                                                <a href="editCivilisation.php?id=<?= $civilisation['id']; ?>" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Modifier</a>
+                                                <a href="deleteCivilisation.php?id=<?= $civilisation['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette civilisation ?')">
+                                                    <i class="bi bi-trash"></i> Supprimer
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                            <!-- End Tableau -->
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
-        </div>
-    <?php elseif (!empty($search)): ?>
-        <p class="text-muted text-center">Aucune civilisation trouvée correspondant à votre recherche.</p>
-    <?php else: ?>
-        <p class="text-muted text-center">Utilisez la barre de recherche pour trouver une civilisation.</p>
-    <?php endif; ?>
-</div>
+            </div>
+        </section>
+    </main>
 
-
-        <!-- Lien vers la page d'ajout -->
-        <p class="text-end mt-4">
-            <a href="../View/civilisation/addCivilisation.php" class="btn btn-primary">Ajouter une nouvelle civilisation</a>
-        </p>
-    </div>
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
+
 </html>

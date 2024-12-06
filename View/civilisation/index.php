@@ -16,19 +16,19 @@ $itemsPerPage = 5; // Nombre d'éléments par page
 $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1; // Page actuelle (par défaut la page 1)
 $startLimit = ($currentPage - 1) * $itemsPerPage; // Calculer la position de départ pour la requête SQL
 
-// Récupérer le total des civilisations pour calculer le nombre total de pages
-$sqlTotal = "SELECT COUNT(*) FROM civilisation";
+// Récupérer le total des questions pour calculer le nombre total de pages
+$sqlTotal = "SELECT COUNT(*) FROM chatbot";
 $stmtTotal = $pdo->query($sqlTotal);
-$totalCivilisations = $stmtTotal->fetchColumn();
-$totalPages = ceil($totalCivilisations / $itemsPerPage); // Calculer le nombre total de pages
+$totalQuestions = $stmtTotal->fetchColumn();
+$totalPages = ceil($totalQuestions / $itemsPerPage); // Calculer le nombre total de pages
 
-// Récupérer les civilisations pour la page actuelle
-$sql = "SELECT * FROM civilisation LIMIT :start, :limit";
+// Récupérer les questions et réponses pour la page actuelle
+$sql = "SELECT * FROM chatbot LIMIT :start, :limit";
 $stmt = $pdo->prepare($sql);
 $stmt->bindParam(':start', $startLimit, PDO::PARAM_INT);
 $stmt->bindParam(':limit', $itemsPerPage, PDO::PARAM_INT);
 $stmt->execute();
-$civilisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$chatbot = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -36,24 +36,24 @@ $civilisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Civilisations</title>
+    <title>Gestion des Questions et Réponses (Chatbot)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Gestion des Civilisations</h1>
+        <h1 class="text-center mb-4">Gestion des Questions et Réponses du Chatbot</h1>
 
         <!-- Message de succès après ajout ou mise à jour -->
         <?php if (isset($_GET['success'])): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <?php if ($_GET['success'] == 1): ?>
-                    La civilisation a été ajoutée avec succès.
+                    La question et la réponse ont été ajoutées avec succès.
                 <?php elseif ($_GET['success'] == 2): ?>
-                    La civilisation a été mise à jour avec succès.
+                    La question et la réponse ont été mises à jour avec succès.
                 <?php elseif ($_GET['success'] == 3): ?>
-                    La civilisation a été supprimée avec succès.
+                    La question et la réponse ont été supprimées avec succès.
                 <?php endif; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -61,26 +61,26 @@ $civilisations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Lien vers la page d'ajout -->
         <p class="text-end">
-            <a href="addCivilisation.php" class="btn btn-primary">Ajouter une nouvelle civilisation</a>
+            <a href="addQuestion.php" class="btn btn-primary">Ajouter une nouvelle question et réponse</a>
         </p>
 
-        <!-- Tableau des civilisations -->
+        <!-- Tableau des questions et réponses -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Nom</th>
-                    <th>Description</th>
+                    <th>Question</th>
+                    <th>Réponse</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($civilisations as $civilisation): ?>
+                <?php foreach ($chatbot as $item): ?>
                     <tr>
-                        <td><?= htmlspecialchars($civilisation['name']); ?></td>
-                        <td><?= htmlspecialchars($civilisation['description']); ?></td>
+                        <td><?= htmlspecialchars($item['question']); ?></td>
+                        <td><?= htmlspecialchars($item['answer']); ?></td>
                         <td>
-                            <a href="editCivilisation.php?id=<?= $civilisation['id']; ?>" class="btn btn-warning btn-sm">Modifier</a>
-                            <a href="deleteCivilisation.php?id=<?= $civilisation['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette civilisation ?')">Supprimer</a>
+                            <a href="editQuestion.php?id=<?= $item['id']; ?>" class="btn btn-warning btn-sm">Modifier</a>
+                            <a href="deleteQuestion.php?id=<?= $item['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette question et sa réponse ?')">Supprimer</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

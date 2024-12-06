@@ -38,15 +38,25 @@ if (isset($_GET['delete'])) {
     header("Location: searchCivilisationItems.php");
     exit;
 }
-$civilisation_id = $_GET['civilisation_id'];
 
-// Récupérer les items de civilisation
-$sql = "SELECT * FROM civilisation_items WHERE civilisation_id = :civilisation_id";
-$stmt = $pdo->prepare($sql); // Prepare the statement
-$stmt->bindParam(':civilisation_id', $civilisation_id, PDO::PARAM_INT); // Bind the parameter
-$stmt->execute(); // Execute the query
-$results = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
+// Pagination
+$itemsPerPage = 10;  // Nombre d'éléments par page
+$currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;  // Page actuelle, par défaut la première page
+$startLimit = ($currentPage - 1) * $itemsPerPage;  // Calculer le début de la requête LIMIT
 
+// Récupérer le total des items pour calculer le nombre total de pages
+$sqlTotalItems = "SELECT COUNT(*) FROM civilisation_items";
+$stmtTotal = $pdo->query($sqlTotalItems);
+$totalItems = $stmtTotal->fetchColumn();
+$totalPages = ceil($totalItems / $itemsPerPage);
+
+// Récupérer les items de civilisation avec pagination
+$sql = "SELECT * FROM civilisation_items LIMIT :start, :limit";
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':start', $startLimit, PDO::PARAM_INT);
+$stmt->bindParam(':limit', $itemsPerPage, PDO::PARAM_INT);
+$stmt->execute();
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -70,6 +80,11 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
             width: 50px; /* Resize the image */
             height: auto;
         }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -83,7 +98,6 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
             <table class="table table-sm table-striped table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <!-- Removed the ID Civilisation column -->
                         <th>Nom</th>
                         <th>Description</th>
                         <th>Image</th>
@@ -95,7 +109,6 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
                 <tbody>
                     <?php foreach ($results as $item): ?>
                         <tr>
-                            <!-- Removed the ID Civilisation column -->
                             <td><?= htmlspecialchars($item['name']); ?></td>
                             <td><?= htmlspecialchars($item['description']); ?></td>
                             <td><img src="<?= htmlspecialchars($item['image']); ?>" alt="<?= htmlspecialchars($item['name']); ?>"></td>
@@ -110,8 +123,28 @@ $results = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination">
+                <?php if ($currentPage > 1): ?>
+                    <li class="page-item"><a class="page-link" href="searchCivilisationItems.php?page=1">1</a></li>
+                    <li class="page-item"><a class="page-link" href="searchCivilisationItems.php?page=<?= $currentPage - 1; ?>">Précédent</a></li>
+                <?php endif; ?>
+
+                <!-- Pages numérotées -->
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?= ($i == $currentPage) ? 'active' : ''; ?>"><a class="page-link" href="searchCivilisationItems.php?page=<?= $i; ?>"><?= $i; ?></a></li>
+                <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <li class="page-item"><a class="page-link" href="searchCivilisationItems.php?page=<?= $currentPage + 1; ?>">Suivant</a></li>
+                    <li class="page-item"><a class="page-link" href="searchCivilisationItems.php?page=<?= $totalPages; ?>"><?= $totalPages; ?></a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>
