@@ -1,0 +1,16 @@
+.search-container input {
+    float: center;
+    padding: 6px;
+    margin-top: 8px;
+    margin-right: 1px;
+    background: #ddd;
+    font-size: 17px;
+    border: none;
+    cursor: text;
+  }
+
+  .search-container button {
+    padding: 6px;
+  }
+
+  
