@@ -11,13 +11,21 @@ class CivilisationItemsController
     }
 
     // Lister tous les éléments d'une civilisation
-    public function listAllItems($civilisation_id)
+    public function listAllItems($civilisation_id = null)
     {
-        $sql = "SELECT * FROM civilisation_items WHERE civilisation_id = :civilisation_id";
+        if ($civilisation_id) {
+            $sql = "SELECT * FROM civilisation_items WHERE civilisation_id = :civilisation_id";
+        } else {
+            $sql = "SELECT * FROM civilisation_items";
+        }
 
         try {
             $query = $this->db->prepare($sql);
-            $query->execute(['civilisation_id' => $civilisation_id]);
+            if ($civilisation_id) {
+                $query->execute(['civilisation_id' => $civilisation_id]);
+            } else {
+                $query->execute();
+            }
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             die('Erreur: ' . $e->getMessage());
@@ -25,7 +33,7 @@ class CivilisationItemsController
     }
 
     // Ajouter un élément pour une civilisation
-    public function addItem($civilisation_id, $type, $name, $description, $image, $location)
+    public function addCivilisationItem($civilisation_id, $type, $name, $description, $image, $location)
     {
         $sql = "INSERT INTO civilisation_items (id, civilisation_id, type, name, description, image, location) 
                 VALUES (NULL, :civilisation_id, :type, :name, :description, :image, :location)";
@@ -47,7 +55,7 @@ class CivilisationItemsController
     }
 
     // Mettre à jour un élément existant
-    public function updateItem($id, $civilisation_id, $type, $name, $description, $image, $location)
+    public function updateCivilisationItem($id, $civilisation_id, $type, $name, $description, $image, $location)
     {
         $sql = "UPDATE civilisation_items SET 
                     civilisation_id = :civilisation_id,
@@ -76,7 +84,7 @@ class CivilisationItemsController
     }
 
     // Supprimer un élément par son ID
-    public function deleteItem($id)
+    public function deleteCivilisationItem($id)
     {
         $sql = "DELETE FROM civilisation_items WHERE id = :id";
 
@@ -90,38 +98,37 @@ class CivilisationItemsController
     }
 
     // Recherche d'éléments par nom ou type
-    public function searchItems($search) {
+    public function searchCivilisationItem($search) {
         $query = $this->db->prepare("SELECT * FROM civilisation_items WHERE name LIKE :search OR type LIKE :search");
         $query->bindParam(':search', $search, PDO::PARAM_STR);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function DisplayItemsByCivilisation($civilisationNameInput)
+    // Afficher les éléments d'une civilisation donnée
+    public function DisplayCivilisationItemByCivilisation($civilisationNameInput)
     {
-        // Query to get the civilization ID and description
+        // Requête pour obtenir l'ID et la description de la civilisation
         $query1 = $this->db->prepare("SELECT id, description FROM civilisation WHERE name LIKE :civilisationNameInput");
         $query1->bindValue(':civilisationNameInput', '%' . $civilisationNameInput . '%', PDO::PARAM_STR);
         $query1->execute();
         $civilisation = $query1->fetch(PDO::FETCH_ASSOC);
     
         if ($civilisation) {
-            // Get the civilization's items using the fetched ID
+            // Obtenez les éléments de la civilisation à partir de l'ID récupéré
             $query2 = $this->db->prepare("SELECT * FROM civilisation_items WHERE civilisation_id = :civilisation_id");
             $query2->bindParam(':civilisation_id', $civilisation['id'], PDO::PARAM_INT);
             $query2->execute();
             $items = $query2->fetchAll(PDO::FETCH_ASSOC);
     
-            // Combine civilization description with its items
+            // Combiner la description de la civilisation avec ses éléments
             return [
                 'description' => $civilisation['description'],
                 'items' => $items
             ];
         }
     
-        return null; // Return null if the civilization is not found
+        return null; // Retourner null si la civilisation n'est pas trouvée
     }
-    
-    
 }
 ?>

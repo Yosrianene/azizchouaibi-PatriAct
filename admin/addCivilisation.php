@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute();
 
             // Redirection après succès
-            header("Location: index.php?success=1");
+            header("Location: searchCivilisation.php?success=1");
             exit();
         } catch (PDOException $e) {
             echo "Erreur : " . htmlspecialchars($e->getMessage());

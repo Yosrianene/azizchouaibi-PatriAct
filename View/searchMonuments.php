@@ -140,6 +140,7 @@ p strong {
       <div class="header-social-links">
         <a href="#" class=""><i class="loginBTN"></i> Login</a>
         <a href="#" class=""><i class="signupBTN"></i> Signup</a>
+        <a href="chatbot.php"  target="_blank"> <i > Chatbot</i></a>
       </div>
 
     </div>

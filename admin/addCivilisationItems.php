@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'location' => $location,
                 'type' => $type
             ]);
-            header("Location: searchCivilisationItems.php?message=success");
+            header("Location: index2.php?message=success");
             exit();
         } catch (PDOException $e) {
             $error_message = "Erreur lors de l'ajout de l'élément : " . htmlspecialchars($e->getMessage());

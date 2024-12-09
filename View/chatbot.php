@@ -37,7 +37,7 @@ if ($conn->connect_error) {
 if (!isset($_SESSION['history'])) {
     $_SESSION['history'] = [
         [
-            'user_message' => '',
+            'user_message' => 'bonjour ',
             'bot_message' => "Bonjour ! Je suis le chatbot. Posez-moi des questions sur les civilisations qui ont marqué l'histoire de la Tunisie."
         ]
     ];
@@ -296,47 +296,33 @@ if ($result->num_rows > 0) {
         <!-- Affichage des questions suggérées -->
         <?php if (!empty($questions)): ?>
             <div class="question-buttons">
-                <form method="POST" action="">
-                    <button type="submit" name="user_question" value="<?php echo htmlspecialchars($questions[0]); ?>" class="question-button">
-                        <?php echo htmlspecialchars($questions[0]); ?>
-                    </button>
-                    <button type="submit" name="user_question" value="<?php echo htmlspecialchars($questions[1]); ?>" class="question-button">
-                        <?php echo htmlspecialchars($questions[1]); ?>
-                    </button>
-                </form>
+                <?php foreach ($questions as $q): ?>
+                    <form action="" method="POST" style="margin: 0;">
+                        <input type="hidden" name="user_question" value="<?php echo htmlspecialchars($q); ?>">
+                        <button type="submit" class="question-button"><?php echo htmlspecialchars($q); ?></button>
+                    </form>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
+    <?php else: ?>
+        <p>Vous avez atteint la limite de questions autorisées. <a href="?reset=true">Cliquez ici pour réinitialiser</a> et poser de nouvelles questions.</p>
     <?php endif; ?>
 
-   <!-- Formulaire pour envoyer une nouvelle question -->
-<form method="POST" action="" style="display: flex; margin-top: 20px;">
-    <input type="text" name="user_question" class="form-input" placeholder="Posez votre question ici..." required>
-    <button type="submit" class="form-submit">Envoyer</button>
-</form>
+    <!-- Formulaire pour envoyer une question -->
+    <form action="" method="POST">
+        <input type="text" name="user_question" class="form-input" placeholder="Posez une question...">
+        <button type="submit" class="form-submit">Envoyer</button>
+    </form>
+</div>
 
-<!-- Affichage du message si la limite de questions est atteinte -->
-<?php if ($_SESSION['question_count'] >= 25): ?>
-    <div style="color: red; text-align: center; margin-top: 20px;">
-        Vous avez atteint la limite de 25 questions. Vous pouvez réinitialiser la session.
-    </div>
-<?php endif; ?>
-
-
-
-<!-- Script JavaScript pour faire défiler automatiquement -->
 <script>
-    function scrollToBottom() {
+    // Script pour actualiser le chatbox en temps réel
+    function refreshChatBox() {
         var chatBox = document.getElementById('chat-box');
-        chatBox.scrollTop = chatBox.scrollHeight;
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
     }
 
-    window.onload = function() {
-        scrollToBottom();
-    };
-
-    document.querySelector("form").addEventListener("submit", function() {
-        setTimeout(scrollToBottom, 100);
-    });
+    setInterval(refreshChatBox, 1000); // Call the function every 1 second
 </script>
 
 </body>

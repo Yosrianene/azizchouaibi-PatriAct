@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Message de succès et redirection vers searchCivilisationItems.php
     $_SESSION['success_message'] = "Item modifié avec succès.";
-    header("Location: searchCivilisationItems.php?message=success");
+    header("Location: index2.php?message=success");
     exit();
 }
 ?>

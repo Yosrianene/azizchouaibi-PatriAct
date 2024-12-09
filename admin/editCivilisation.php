@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['name' => $name, 'description' => $description, 'id' => $id]);
 
         // Redirection vers la page de gestion avec l'ID de la civilisation modifiée
-        header("Location: searchCivilisation.php?id=" . $id . "&success=1");
+        header("Location: index.php?id=" . $id . "&success=1");
         exit();
     }
 }
