@@ -3,15 +3,10 @@ require_once '../../patriAct-main/Controller/CivilisationController.php';
 require_once '../../patriAct-main/Controller/CivilisationItemsController.php';
 require_once '../../patriAct-main/view/config.php';
 
-
-
 // Fetch all posts
 $civController = new CivilisationController();
 $civs = $civController->listAll();
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -62,7 +57,6 @@ $civs = $civController->listAll();
                     <li class="breadcrumb-item"><a href="index.php">civilisation</a></li>
                     <li class="breadcrumb-item"><a href="index2.php">civilisationitems</a></li>
                     <li class="breadcrumb-item"><a href="index3.php">chatbot</a></li>
-                    
                 </ol>
             </nav>
         </div>
@@ -74,25 +68,11 @@ $civs = $civController->listAll();
                         <div class="card-body">
                             <h5 class="card-title">Liste des Civilisations</h5>
 
-                            <!-- Message de succès -->
-                            <?php if (isset($_GET['success'])): ?>
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    <?php if ($_GET['success'] == 1): ?>
-                                        La civilisation a été ajoutée avec succès.
-                                    <?php elseif ($_GET['success'] == 2): ?>
-                                        La civilisation a été mise à jour avec succès.
-                                    <?php elseif ($_GET['success'] == 3): ?>
-                                        La civilisation a été supprimée avec succès.
-                                    <?php endif; ?>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            <?php endif; ?>
-
                             <!-- Bouton d'ajout -->
                             <a href="addCivilisation.php" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Ajouter une nouvelle civilisation</a>
 
                             <!-- Tableau -->
-                            <table class="table datatable">
+                            <table class="table datatable" id="civilisationTable">
                                 <thead>
                                     <tr>
                                         <th scope="col">Nom</th>
@@ -101,7 +81,7 @@ $civs = $civController->listAll();
                                     </tr>
                                 </thead>
                                 <tbody>
- <?php foreach ($civs as $civilisation): ?>
+                                    <?php foreach ($civs as $civilisation): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($civilisation['name']); ?></td>
                                             <td><?= htmlspecialchars($civilisation['description']); ?></td>
@@ -126,7 +106,12 @@ $civs = $civController->listAll();
     <!-- Vendor JS Files -->
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="assets/js/main.js"></script>
+    <script>
+        // Initialize the DataTable
+        const dataTable = new simpleDatatables.DataTable("#civilisationTable", {
+            
+        });
+    </script>
 </body>
 
 </html>

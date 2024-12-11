@@ -5,7 +5,6 @@ require_once '../../patriAct-main/view/config.php';
 // Create a new instance of the CivilisationItemsController
 $civilisationItemsController = new CivilisationItemsController();
 $civilisationItems = $civilisationItemsController->listAllItems($someCivilisationId); // Pass the appropriate civilisation_id here
-
 ?>
 
 <!DOCTYPE html>
@@ -86,7 +85,7 @@ $civilisationItems = $civilisationItemsController->listAllItems($someCivilisatio
                             <a href="addcivilisationItems.php" class="btn btn-primary mb-3"><i class="bi bi-plus-circle"></i> Ajouter un nouvel élément</a>
 
                             <!-- Tableau -->
-                            <table class="table datatable">
+                            <table class="table datatable" id="civilisationItemsTable">
                                 <thead>
                                     <tr>
                                         <th scope="col">Nom</th>
@@ -108,10 +107,8 @@ $civilisationItems = $civilisationItemsController->listAllItems($someCivilisatio
                                                 <td><?= htmlspecialchars($item['location']); ?></td>
                                                 <td>
                                                     <a href="editcivilisationItem.php?id=<?= $item['id']; ?>" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Modifier</a>
-                                                    <<a href="/patriAct-main/admin/deleteCivilisationItem.php?id=<?= $item['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')">
-    <i class="bi bi-trash"></i> Supprimer
-</a>
-
+                                                    <a href="/patriAct-main/admin/deleteCivilisationItem.php?id=<?= $item['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')">
+                                                        <i class="bi bi-trash"></i> Supprimer
                                                     </a>
                                                 </td>
                                             </tr>
@@ -135,6 +132,12 @@ $civilisationItems = $civilisationItemsController->listAllItems($someCivilisatio
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="assets/js/main.js"></script>
+    <script>
+        // Initialize the DataTable
+        const dataTable = new simpleDatatables.DataTable("#civilisationItemsTable", {
+            
+        });
+    </script>
 </body>
 
 </html>
